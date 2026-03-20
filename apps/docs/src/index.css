@@ -1,0 +1,289 @@
+@import "../styles/globals.css";
+
+:root {
+  --bg: #ffffff;
+  --bg-rgb: 255, 255, 255;
+  --fg: #000000;
+  --fg-rgb: 0, 0, 0;
+  --muted: #666666;
+  --border: rgba(0, 0, 0, 0.08);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+.dark {
+  --bg: #0a0a0a;
+  --bg-rgb: 10, 10, 10;
+  --fg: #ffffff;
+  --fg-rgb: 255, 255, 255;
+  --muted: #a0a0a0;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+h1, .display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+canvas#particles {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 2.5rem; 
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: auto;
+  max-width: 95vw;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.75rem;
+  background: rgba(var(--bg-rgb), 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
+  gap: 3rem;
+  transition: all 0.3s ease;
+}
+
+.dark .navbar-content {
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
+  background: rgba(var(--bg-rgb), 0.8);
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--fg);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.logo-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4285f4, #ea4335);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 900;
+  -webkit-text-fill-color: white;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--fg);
+  font-weight: 500;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: 0 4px 14px 0 rgba(var(--fg-rgb), 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--fg-rgb), 0.25);
+  opacity: 0.95;
+}
+
+.btn-secondary {
+  background: rgba(var(--bg-rgb), 0.5);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+  background: rgba(var(--bg-rgb), 0.8);
+  transform: translateY(-2px);
+  border-color: var(--fg);
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1001;
+}
+
+.theme-btn {
+  background: rgba(var(--bg-rgb), 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  padding: 0.65rem 1.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theme-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(var(--bg-rgb), 1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.theme-btn.active {
+  color: var(--fg);
+}
+
+.btn-small {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.btn-dark {
+  background: var(--fg);
+  color: var(--bg);
+}
+.btn-dark:hover {
+  opacity: 0.8;
+}
+
+.btn-light {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+.btn-light:hover {
+  background: var(--border);
+}
+
+.theme-controls {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--border);
+  padding: 0.25rem;
+  border-radius: 999px;
+}
+.theme-btn {
+  background: transparent;
+  border: none;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--fg); /* Strictly pure black/white depending on theme */
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.theme-btn.active {
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Hero Section */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.hero-logo {
+  font-weight: 500;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: clamp(4rem, 8vw, 7rem);
+  margin-bottom: 2.5rem;
+  max-width: 1100px;
+  color: var(--fg); /* explicitly use var(--fg) to support dark mode inversion */
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hero h1 { font-size: 3rem; }
+}

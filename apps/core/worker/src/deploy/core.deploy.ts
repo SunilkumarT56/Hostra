@@ -1,0 +1,63 @@
+import { prisma } from "db";
+import { v4 as uuid } from "uuid";
+import { simpleGit } from "simple-git";
+import path from "path";
+import { fileURLToPath } from "url";
+import { getAllFiles } from "../utils/files.path.resolver.js";
+import { uploadFile } from "../utils/upload.files.utils.js";
+import { createClient } from "redis";
+import type { Request, Response } from "express";
+import { clearBuildFolders } from "../utils/clear.files.utils.js";
+import { Redis } from "ioredis";
+import { deletePrefix } from "../utils/delete.files.utils.js";
+
+const publisher = createClient();
+const pub = new Redis();
+publisher.connect().catch(console.error);
+publisher.on("ready", () => console.log("✅ Redis connected"));
+publisher.on("error", (err) => console.error("❌ Redis error:", err));
+
+const git = simpleGit();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const deployService = async function (req: Request, res: Response) {
+  const repo_url = (req as any).repoUrlFromWebhook || req.body?.repoUrl;
+  if (!repo_url) {
+    return res.status(400).json({ error: "No repo URL provided" });
+  }
+
+  let id = uuid();
+
+  // ✅ correct drizzle query syntax
+  
+
+
+
+  pub.publish(`logs:${id}`, `cloning the repo ${repo_url}`);
+  await git.clone(repo_url, path.join(__dirname, `../../output/${id}`));
+
+  const files = getAllFiles(path.join(__dirname, `../../output/${id}`));
+  const rootDir = path.join(__dirname, "../../");
+  const outputDir = path.join(rootDir, "output");
+
+  try {
+    pub.publish(`logs:${id}`, `uploading the files`);
+    for (const file of files) {
+      if (file.includes(".git") || file.includes(".DS_Store")) continue;
+      console.log("📤 Uploading:", file);
+      await uploadFile("output/" + file.slice(outputDir.length + 1), file);
+    }
+
+    console.log("✅ Upload done, pushing status to Redis...", id);
+    await publisher.hSet("status", id, "uploading");
+    await publisher.lPush("build-queue", id);
+
+    const endUrl = `${id}.sunildev.com`;
+    await clearBuildFolders(id);
+    res.json({ endUrl });
+  } catch (err) {
+    console.error("❌ Error during deployService:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
